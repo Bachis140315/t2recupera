@@ -9,6 +9,7 @@ import pickle
 import subprocess
 
 
+samples_ventana = 4096
 # funcion que recibe un nombre de archivo y llama a FFmpeg para crear un archivo wav
 # requiere que el comando ffmpeg esté disponible
 def convertir_a_wav(archivo_audio, sample_rate, dir_temporal):
@@ -82,3 +83,25 @@ def escribir_lista_de_columnas_en_archivo(lista_con_columnas, archivo_texto_sali
                 textos.append(str(col))
             texto = "\t".join(textos)
             print(texto, file=handle)
+
+
+def lista_ventanas(nombre_archivo, numero_descriptores, sample_rate, samples_por_ventana):
+    # tantas ventanas como numero de descriptores
+    tiempos = []
+    for i in range(0, samples_por_ventana * numero_descriptores, samples_por_ventana):
+        # tiempo de inicio de la ventana
+        segundos_desde = i / sample_rate
+        # tiempo de fin de la ventana
+        segundos_hasta = (i + samples_por_ventana - 1) / sample_rate
+        # crear objeto
+        v = (nombre_archivo, segundos_desde, segundos_hasta)
+        # agregar a la lista
+        tiempos.append(v)
+    return tiempos
+
+
+def imprimir_ventanas(ventanas, mfcc, muestreo_ventanas=1):
+    print("ventanas={} descriptores={}".format(len(ventanas), mfcc.shape))
+    print("mostrando algunas ventanas:")
+    for i in range(0, len(ventanas), muestreo_ventanas):
+        print(" {:4d}) {} descriptor={}".format(i, ventanas[i], mfcc[i].shape))

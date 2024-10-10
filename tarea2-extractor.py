@@ -5,6 +5,7 @@
 import sys
 import os
 import util as util
+import librosa
 
 
 def tarea2_extractor(carpeta_audios_entrada, carpeta_descriptores_salida):
@@ -28,9 +29,35 @@ def tarea2_extractor(carpeta_audios_entrada, carpeta_descriptores_salida):
     #  4-escribir en carpeta_descriptores_salida los descriptores de cada archivo
     #    puede servir la funcion util.guardar_objeto() que está definida en util.py
     #
-    # borrar las siguientes lineas
-    print("ERROR: tarea2_extractor no implementado!")
-    sys.exit(1)
+
+    nombres_canciones = util.listar_archivos_con_extension(carpeta_audios_entrada , '.m4a')
+    nombres_radio = util.listar_archivos_con_extension(carpeta_audios_entrada , '.m4a')
+
+    for cancion in nombres_canciones:
+        cancion_wav = util.convertir_a_wav(carpeta_audios_entrada + cancion, 44100, carpeta_descriptores_salida)
+        samples, sr = librosa.load(cancion_wav, sr=None)
+        print("audio samples={} samplerate={} segundos={:.1f}".format(len(samples), sr, len(samples) / sr))
+        
+        cancion_mfcc = librosa.feature.mfcc(y=samples, sr=sr, n_mfcc=22, n_fft=util.samples_ventana, hop_length=util.samples_ventana)
+        descriptor = cancion_mfcc.transpose()
+
+        #print(cancion_wav)
+        util.guardar_objeto(descriptor, None, cancion_wav + 'cancionbin')
+
+    for radio in nombres_radio:
+        radio_wav = util.convertir_a_wav(carpeta_audios_entrada + '/radio/' + radio, 44100, carpeta_descriptores_salida)
+        samples, sr = librosa.load(radio_wav, sr=None)
+        print("audio samples={} samplerate={} segundos={:.1f}".format(len(samples), sr, len(samples) / sr))
+        
+        radio_mfcc = librosa.feature.mfcc(y=samples, sr=sr, n_mfcc=22, n_fft=util.samples_ventana, hop_length=util.samples_ventana)
+        descriptor = radio_mfcc.transpose()
+        #print(radio_mfcc)
+        #print(radio_wav)
+        util.guardar_objeto(descriptor, None, radio_wav + 'radiobin')
+
+
+
+    
 
 
 # inicio de la tarea

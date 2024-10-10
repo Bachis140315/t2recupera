@@ -1,0 +1,9 @@
+datasets/
+wavs/
+descriptores/
+*.bat
+*.exe
+__pycache__/
+.vscode/
+*.txt
+evaluacion_tarea2/
