@@ -38,8 +38,8 @@ def tarea2_busqueda(carpeta_descriptores_radio_Q, carpeta_descritores_canciones_
     
 
     # Se obtienen nombres de los archivos binarios con el descriptor MFCC para las canciones y para los audios de radio
-    nombres_descriptores_canciones = util.listar_archivos_con_extension(carpeta_descritores_canciones_R, '.wavcancionbin')
-    nombres_descriptores_radio = util.listar_archivos_con_extension(carpeta_descriptores_radio_Q, '.wavradiobin')
+    nombres_descriptores_canciones = util.listar_archivos_con_extension(carpeta_descritores_canciones_R, '.wavbin')
+    nombres_descriptores_radio = util.listar_archivos_con_extension(carpeta_descriptores_radio_Q, '.wavbin')
 
 
     #Se leer archivo binario con MFCC de la cancion y se guarda en un arreglo, ademas de obtener las ventanas desde el segundo
@@ -70,8 +70,6 @@ def tarea2_busqueda(carpeta_descriptores_radio_Q, carpeta_descritores_canciones_
         ventanas_radio = []
         mfccs_radios = util.leer_objeto(carpeta_descriptores_radio_Q , descriptor_radio)
         mejor_mfccs_radio = mfccs_radios[:, 2:]
-        #print(mejor_mfccs_radio)
-        #print('\n')
         radio_ventanas = util.lista_ventanas(descriptor_radio, mejor_mfccs_radio.shape[0], 44100, util.samples_ventana)
 
 

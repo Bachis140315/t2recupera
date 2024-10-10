@@ -37,18 +37,21 @@ def tarea2_deteccion(archivo_ventanas_similares, archivo_detecciones):
     repeticiones_canciones = {}
     with open(archivo_ventanas_similares, 'r') as similares:
         for linea in similares:
+            #Esta varible contiene ['nombre_radio', 'inicio_ventana_radio', 'nombre_cancion', 'inicio_ventana_cancion']
             division = linea.split(' ')
-
-            #Se convierten a float
+            
+            # Se convierten a float los inicios de ventanas
             inicio_cancion = float(division[len(division) - 2])
             inicio_radio = float(division[1])
 
-            #Obtener desfase
+            # Obtener desfases:
+            # Se redondea al medio segundo
             desfase_real = abs(round(2*(inicio_radio - inicio_cancion), 0)/2)
 
+            # Se crea otro desfase mas 'grueso' en su aproximacion, para que tenga se tenga un margen para meter ventanas
             desfase_dicc = math.trunc(desfase_real)
 
-        
+            # Formateo de el nombre de la llave        
             nombre_radio = division[0]
             nombre_cancion = ' '.join(division[2:len(division)-2])
 
@@ -58,13 +61,13 @@ def tarea2_deteccion(archivo_ventanas_similares, archivo_detecciones):
             
             if llave in repeticiones_canciones:
                 arreglo = repeticiones_canciones[llave]
-                if abs(desfase_dicc - arreglo[1]) < 2.0:
-                    arreglo[0] += 1
-                    if inicio_cancion > arreglo[2]:
-                        arreglo[2] = round(inicio_cancion, 1)
-                    repeticiones_canciones[llave] = arreglo
+                #if abs(desfase_dicc - arreglo[1]) < 2.0:
+                arreglo[0] += 1
+                if inicio_cancion > arreglo[2]:
+                    arreglo[2] = round(inicio_cancion, 1)
+                repeticiones_canciones[llave] = arreglo
             else:
-                # Cierta llave tiene como valor ['votaciones', 'desfase real', 'maximo registrado de tiempo de la cancion']
+                # Cada llave tiene como valor ['votaciones', 'desfase real', 'maximo registrado de tiempo de la cancion']
                 repeticiones_canciones[llave] = [1, desfase_dicc ,round(inicio_cancion, 1), desfase_real]
 
 
@@ -72,7 +75,7 @@ def tarea2_deteccion(archivo_ventanas_similares, archivo_detecciones):
     nombres_seleccionados = {}
     for llave in repeticiones_canciones:
         arreglo = repeticiones_canciones[llave]
-        if arreglo[0] > 10:
+        if arreglo[0] > 20:
             nombres = llave.split('#')
             #print("{} {} {} {} {}".format(nombres[0], arreglo[3], arreglo[2], nombres[1], arreglo[0]))
 
@@ -97,17 +100,14 @@ def tarea2_deteccion(archivo_ventanas_similares, archivo_detecciones):
                 #Ventanas, desfase, inicio cancion
                 nombres_seleccionados[nueva_llave] = [[arreglo[0], arreglo[3], arreglo[2]]]
 
-            #Se unen las con desfase distinto, pero no mayor a 20
 
     #Ultimo filtro
+    print(nombres_seleccionados)
     canciones_finales = []
     for llave in nombres_seleccionados:
         arreglos = nombres_seleccionados[llave]
-        #print(llave)
-        #print(arreglos)
-        #print('\n')
         for subarreglo in arreglos:
-            if subarreglo[0] > 20:
+            if subarreglo[0] > 15:
                 nombres = llave.split('#')
 
                 nombres.extend(subarreglo)

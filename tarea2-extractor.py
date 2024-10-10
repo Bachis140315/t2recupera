@@ -30,30 +30,19 @@ def tarea2_extractor(carpeta_audios_entrada, carpeta_descriptores_salida):
     #    puede servir la funcion util.guardar_objeto() que está definida en util.py
     #
 
-    nombres_canciones = util.listar_archivos_con_extension(carpeta_audios_entrada , '.m4a')
-    nombres_radio = util.listar_archivos_con_extension(carpeta_audios_entrada , '.m4a')
+    nombres_audios = util.listar_archivos_con_extension(carpeta_audios_entrada , '.m4a')
 
-    for cancion in nombres_canciones:
-        cancion_wav = util.convertir_a_wav(carpeta_audios_entrada + cancion, 44100, carpeta_descriptores_salida)
-        samples, sr = librosa.load(cancion_wav, sr=None)
+    for audio in nombres_audios:
+        audio_wav = util.convertir_a_wav(carpeta_audios_entrada + audio, 44100, carpeta_descriptores_salida)
+        samples, sr = librosa.load(audio_wav, sr=None)
         print("audio samples={} samplerate={} segundos={:.1f}".format(len(samples), sr, len(samples) / sr))
         
-        cancion_mfcc = librosa.feature.mfcc(y=samples, sr=sr, n_mfcc=22, n_fft=util.samples_ventana, hop_length=util.samples_ventana)
+        cancion_mfcc = librosa.feature.mfcc(y=samples, sr=sr, n_mfcc=42, n_fft=util.samples_ventana, hop_length=util.samples_ventana)
         descriptor = cancion_mfcc.transpose()
 
         #print(cancion_wav)
-        util.guardar_objeto(descriptor, None, cancion_wav + 'cancionbin')
+        util.guardar_objeto(descriptor, None, audio_wav + 'bin' )
 
-    for radio in nombres_radio:
-        radio_wav = util.convertir_a_wav(carpeta_audios_entrada + '/radio/' + radio, 44100, carpeta_descriptores_salida)
-        samples, sr = librosa.load(radio_wav, sr=None)
-        print("audio samples={} samplerate={} segundos={:.1f}".format(len(samples), sr, len(samples) / sr))
-        
-        radio_mfcc = librosa.feature.mfcc(y=samples, sr=sr, n_mfcc=22, n_fft=util.samples_ventana, hop_length=util.samples_ventana)
-        descriptor = radio_mfcc.transpose()
-        #print(radio_mfcc)
-        #print(radio_wav)
-        util.guardar_objeto(descriptor, None, radio_wav + 'radiobin')
 
 
 
