@@ -23,15 +23,8 @@ def tarea2_deteccion(archivo_ventanas_similares, archivo_detecciones):
     #  2-crear un algoritmo para buscar secuencias similares entre audios
     #    ver slides de la semana 5 y 7
     #    identificar grupos de ventanas de Q y R que son similares y pertenecen a las mismas canciones con el mismo desfase
-    #
-    #  3-escribir las detecciones encontradas en archivo_detecciones, en un archivo con 5 columnas:
-    #    columna 1: nombre de archivo Q (nombre de archivo en carpeta radio)
-    #    columna 2: tiempo de inicio (número, tiempo medido en segundos de inicio de la emisión)
-    #    columna 3: largo de la detección (número, tiempo medido en segundos con el largo de la emisión)
-    #    columna 4: nombre de archivo R (nombre de archivo en carpeta canciones)
-    #    columna 5: confianza (número, mientras más alto mayor confianza de la respuesta)
-    #   le puede servir la funcion util.escribir_lista_de_columnas_en_archivo() que está definida util.py
-    #
+    
+
     
     #En este diccionario estará como llave el nombre de la radio y la cancion y como valor un par [desfase, contador]
     repeticiones_canciones = {}
@@ -61,31 +54,30 @@ def tarea2_deteccion(archivo_ventanas_similares, archivo_detecciones):
             
             if llave in repeticiones_canciones:
                 arreglo = repeticiones_canciones[llave]
-                #if abs(desfase_dicc - arreglo[1]) < 2.0:
                 arreglo[0] += 1
                 if inicio_cancion > arreglo[2]:
                     arreglo[2] = round(inicio_cancion, 1)
                 repeticiones_canciones[llave] = arreglo
             else:
-                # Cada llave tiene como valor ['votaciones', 'desfase real', 'maximo registrado de tiempo de la cancion']
+                # Cada llave tiene como valor ['votaciones', 'desfase del diccionario', 'maximo registrado de tiempo de la cancion', 'desfase real']
                 repeticiones_canciones[llave] = [1, desfase_dicc ,round(inicio_cancion, 1), desfase_real]
 
 
-
+    #Primer filtro, unir canciones que tengan desfases parecidos y que tengan hartos votos
     nombres_seleccionados = {}
     for llave in repeticiones_canciones:
         arreglo = repeticiones_canciones[llave]
         if arreglo[0] > 20:
             nombres = llave.split('#')
-            #print("{} {} {} {} {}".format(nombres[0], arreglo[3], arreglo[2], nombres[1], arreglo[0]))
 
             nueva_llave = nombres[0] + '#' + nombres[1]
             if nueva_llave in nombres_seleccionados:
                 posibles_fusiones = nombres_seleccionados[nueva_llave]
+                #Si es 0 despues del for, es porque ninguna de las repeticiones de esa cancion existentes es parecido a este caso
                 indentificado = 0
                 for i in range(len(posibles_fusiones)):
                     if abs(posibles_fusiones[i][1]-arreglo[3]) < 2.0:
-                        #Se suman
+                        #Se suman los votos
                         posibles_fusiones[i][1] += arreglo[0]
                         if arreglo[2] > posibles_fusiones[i][2]:
                             posibles_fusiones[i][2] = arreglo[2]
@@ -93,21 +85,21 @@ def tarea2_deteccion(archivo_ventanas_similares, archivo_detecciones):
                         indentificado = 1
                         break
                 if indentificado == 0:
+                    #Se agrega al vector de repeticiones de la cancion una nueva repeticion
                     posibles_fusiones.append([arreglo[0], arreglo[3], arreglo[2]])
                     nombres_seleccionados[nueva_llave] = posibles_fusiones
 
             else:
-                #Ventanas, desfase, inicio cancion
+                #El arreglo contiene = [Ventanas, desfase, inicio cancion], 
                 nombres_seleccionados[nueva_llave] = [[arreglo[0], arreglo[3], arreglo[2]]]
 
 
-    #Ultimo filtro
-    print(nombres_seleccionados)
+    #Ultimo filtro, eliminar las que tengan menos de 15 votos
     canciones_finales = []
     for llave in nombres_seleccionados:
         arreglos = nombres_seleccionados[llave]
         for subarreglo in arreglos:
-            if subarreglo[0] > 15:
+            if subarreglo[0] > 10:
                 nombres = llave.split('#')
 
                 nombres.extend(subarreglo)
@@ -115,8 +107,14 @@ def tarea2_deteccion(archivo_ventanas_similares, archivo_detecciones):
 
     
     canciones_finales.sort(key=lambda x: (x[0], x[3]))
-    #print(canciones_finales)
 
+
+    #  3-escribir las detecciones encontradas en archivo_detecciones, en un archivo con 5 columnas:
+    #    columna 1: nombre de archivo Q (nombre de archivo en carpeta radio)
+    #    columna 2: tiempo de inicio (número, tiempo medido en segundos de inicio de la emisión)
+    #    columna 3: largo de la detección (número, tiempo medido en segundos con el largo de la emisión)
+    #    columna 4: nombre de archivo R (nombre de archivo en carpeta canciones)
+    #    columna 5: confianza (número, mientras más alto mayor confianza de la respuesta)
     with open(archivo_detecciones, 'a') as detecciones_finales:
         for cancion in canciones_finales:
             detecciones_finales.write("{}\t {}\t {}\t {}\t {}\n".format(cancion[0], cancion[3], cancion[4], cancion[1], cancion[2]))
